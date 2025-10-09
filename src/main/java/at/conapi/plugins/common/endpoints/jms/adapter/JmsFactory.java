@@ -83,11 +83,34 @@ public class JmsFactory {
      * @since 1.0.0
      */
     public JmsFactory(URL[] providerJars) {
+        this(providerJars, null);
+    }
+
+    /**
+     * Creates a JmsFactory with specific provider JAR files and a parent classloader.
+     * <p>
+     * This constructor allows loading JMS provider libraries from specific JAR files
+     * at runtime while specifying the parent classloader for proper delegation.
+     * This is essential for ensuring JMS API classes are loaded from the correct classloader
+     * to prevent ClassCastException in plugin environments.
+     * </p>
+     *
+     * @param providerJars array of URLs pointing to JMS provider JAR files, or empty array to use current classloader
+     * @param parentClassLoader the parent classloader (e.g., PluginClassLoader), or null to use default parent
+     * @since 1.0.0
+     */
+    public JmsFactory(URL[] providerJars, ClassLoader parentClassLoader) {
         if (providerJars == null || providerJars.length == 0) {
             this.providerClassLoader = this.getClass().getClassLoader();
         }
         else {
-            this.providerClassLoader = new URLClassLoader(providerJars, this.getClass().getClassLoader().getParent());
+            // Determine the parent: use provided parent, or fall back to current classloader's parent
+            ClassLoader parent = (parentClassLoader != null)
+                ? parentClassLoader
+                : this.getClass().getClassLoader().getParent();
+
+            // Use FilteredClassLoader to ensure JMS API classes come from parent
+            this.providerClassLoader = new FilteredClassLoader(providerJars, parent);
         }
     }
 
@@ -103,6 +126,22 @@ public class JmsFactory {
      * @since 1.0.0
      */
     public JmsFactory(String providerJarPath) throws AbstractJMSException {
+        this(providerJarPath, null);
+    }
+
+    /**
+     * Creates a JmsFactory by loading all JAR files from a directory path with a specified parent classloader.
+     * <p>
+     * This constructor recursively walks the specified directory and loads all JAR files
+     * into an isolated classloader with proper parent delegation for JMS API classes.
+     * </p>
+     *
+     * @param providerJarPath path to directory containing JMS provider JAR files, or null/empty to use current classloader
+     * @param parentClassLoader the parent classloader (e.g., PluginClassLoader), or null to use default parent
+     * @throws AbstractJMSException if the directory cannot be read or JAR files cannot be loaded
+     * @since 1.0.0
+     */
+    public JmsFactory(String providerJarPath, ClassLoader parentClassLoader) throws AbstractJMSException {
         try {
             if (providerJarPath == null || providerJarPath.isEmpty()) {
                 this.providerClassLoader = this.getClass().getClassLoader();
@@ -120,7 +159,14 @@ public class JmsFactory {
                                 e.printStackTrace();
                             }
                         });
-                this.providerClassLoader = new URLClassLoader(urls.toArray(new URL[0]), this.getClass().getClassLoader().getParent());
+
+                // Determine the parent: use provided parent, or fall back to current classloader's parent
+                ClassLoader parent = (parentClassLoader != null)
+                    ? parentClassLoader
+                    : this.getClass().getClassLoader().getParent();
+
+                // Use FilteredClassLoader to ensure JMS API classes come from parent
+                this.providerClassLoader = new FilteredClassLoader(urls.toArray(new URL[0]), parent);
             }
         } catch (IOException e) {
             throw new AbstractJMSException("Failed to create JMS factory", e);
