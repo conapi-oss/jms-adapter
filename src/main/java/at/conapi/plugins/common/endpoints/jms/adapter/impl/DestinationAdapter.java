@@ -3,11 +3,30 @@ package at.conapi.plugins.common.endpoints.jms.adapter.impl;
 import at.conapi.plugins.common.endpoints.jms.adapter.AbstractDestination;
 import at.conapi.plugins.common.endpoints.jms.adapter.AbstractJMSException;
 
+/**
+ * Internal implementation: Adapter wrapping vendor-specific JMS Destination.
+ * <p>
+ * This class wraps either a javax.jms.Destination or jakarta.jms.Destination
+ * and delegates all operations to the underlying implementation.
+ * </p>
+ * <p>
+ * <strong>Note:</strong> This is an internal implementation class and not part of the public API.
+ * Users should not instantiate this class directly.
+ * </p>
+ *
+ * @since 1.0.0
+ */
 public class DestinationAdapter implements AbstractDestination {
 
     private final Object destination;
     private final boolean isJakarta;
 
+    /**
+     * Constructs a DestinationAdapter wrapping a vendor-specific destination.
+     *
+     * @param destination the underlying javax or jakarta JMS destination
+     * @since 1.0.0
+     */
     public DestinationAdapter(Object destination) {
         this.destination = destination;
         this.isJakarta = destination instanceof jakarta.jms.Destination;

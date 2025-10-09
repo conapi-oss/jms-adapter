@@ -4,12 +4,30 @@ import at.conapi.plugins.common.endpoints.jms.adapter.*;
 
 import java.util.Objects;
 
-
+/**
+ * Internal implementation: Adapter wrapping vendor-specific JMS Connection.
+ * <p>
+ * This class wraps either a javax.jms.Connection or jakarta.jms.Connection
+ * and delegates all operations to the underlying implementation.
+ * </p>
+ * <p>
+ * <strong>Note:</strong> This is an internal implementation class and not part of the public API.
+ * Users should not instantiate this class directly.
+ * </p>
+ *
+ * @since 1.0.0
+ */
 public class ConnectionAdapter implements AbstractConnection
 {
     private final Object connection;
     private final boolean isJakarta;
 
+    /**
+     * Constructs a ConnectionAdapter wrapping a vendor-specific connection.
+     *
+     * @param connection the underlying javax or jakarta JMS connection
+     * @since 1.0.0
+     */
     public ConnectionAdapter(Object connection) {
         this.connection = connection;
         this.isJakarta = connection instanceof jakarta.jms.Connection;

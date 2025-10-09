@@ -4,9 +4,29 @@ import at.conapi.plugins.common.endpoints.jms.adapter.AbstractJMSException;
 import at.conapi.plugins.common.endpoints.jms.adapter.AbstractMessage;
 import at.conapi.plugins.common.endpoints.jms.adapter.AbstractProducer;
 
+/**
+ * Internal implementation: Adapter wrapping vendor-specific JMS MessageProducer.
+ * <p>
+ * This class wraps either a javax.jms.MessageProducer or jakarta.jms.MessageProducer
+ * and delegates all operations to the underlying implementation.
+ * </p>
+ * <p>
+ * <strong>Note:</strong> This is an internal implementation class and not part of the public API.
+ * Users should not instantiate this class directly.
+ * </p>
+ *
+ * @since 1.0.0
+ */
 public class ProducerAdapter implements AbstractProducer {
     private final Object producer;
     private final boolean isJakarta;
+
+    /**
+     * Constructs a ProducerAdapter wrapping a vendor-specific message producer.
+     *
+     * @param producer the underlying javax or jakarta JMS message producer
+     * @since 1.0.0
+     */
     public ProducerAdapter(Object producer) {
         this.producer = producer;
         this.isJakarta = producer instanceof jakarta.jms.MessageProducer;

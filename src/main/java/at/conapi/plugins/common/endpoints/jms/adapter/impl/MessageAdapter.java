@@ -9,6 +9,19 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Internal implementation: Adapter wrapping vendor-specific JMS Message.
+ * <p>
+ * This class wraps either a javax.jms.Message or jakarta.jms.Message
+ * and delegates all operations to the underlying implementation.
+ * </p>
+ * <p>
+ * <strong>Note:</strong> This is an internal implementation class and not part of the public API.
+ * Users should not instantiate this class directly.
+ * </p>
+ *
+ * @since 1.0.0
+ */
 @Slf4j
 public class MessageAdapter implements AbstractMessage {
 
@@ -25,6 +38,13 @@ public class MessageAdapter implements AbstractMessage {
         void accept(T t) throws jakarta.jms.JMSException, javax.jms.JMSException;
     }
 
+    /**
+     * Constructs a MessageAdapter wrapping a vendor-specific message.
+     *
+     * @param message the underlying javax or jakarta JMS message
+     * @throws IllegalArgumentException if message is not a valid JMS message instance
+     * @since 1.0.0
+     */
     public MessageAdapter(Object message) {
         if (!(message instanceof jakarta.jms.Message) && !(message instanceof javax.jms.Message)) {
             throw new IllegalArgumentException("Object must be an instance of a JMS Message");

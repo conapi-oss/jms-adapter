@@ -3,16 +3,37 @@ package at.conapi.plugins.common.endpoints.jms.adapter.impl;
 import at.conapi.plugins.common.endpoints.jms.adapter.*;
 import java.util.Map;
 
-
+/**
+ * Internal implementation: Adapter wrapping vendor-specific JMS Session.
+ * <p>
+ * This class wraps either a javax.jms.Session or jakarta.jms.Session
+ * and delegates all operations to the underlying implementation.
+ * </p>
+ * <p>
+ * <strong>Note:</strong> This is an internal implementation class and not part of the public API.
+ * Users should not instantiate this class directly.
+ * </p>
+ *
+ * @since 1.0.0
+ */
 public class SessionAdapter implements AbstractSession
 {
     private final Object session;
     private final boolean isJakarta;
+
+    /** Destination type constant for queue destinations. */
     public static final String QUEUE = "queue";
+    /** Destination type constant for topic destinations. */
     public static final String TOPIC = "topic";
+    /** Destination type constant for JNDI destinations. */
     public static final String JNDI = "jndi";
 
-
+    /**
+     * Constructs a SessionAdapter wrapping a vendor-specific session.
+     *
+     * @param session the underlying javax or jakarta JMS session
+     * @since 1.0.0
+     */
     public SessionAdapter(Object session) {
         this.session = session;
         this.isJakarta = session instanceof jakarta.jms.Session;

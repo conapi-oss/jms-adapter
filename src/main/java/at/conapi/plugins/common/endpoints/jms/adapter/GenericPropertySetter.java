@@ -16,16 +16,25 @@ import java.util.Map;
 public class GenericPropertySetter {
 
     /**
+     * Private constructor to prevent instantiation of utility class.
+     *
+     * @since 1.0.0
+     */
+    private GenericPropertySetter() {
+        throw new UnsupportedOperationException("Utility class - do not instantiate");
+    }
+
+    /**
      * Sets multiple properties on a target object using JavaBean-style setters.
      * <p>
      * For each property in the map, this method:
+     * </p>
      * <ol>
      *   <li>Derives the setter method name (e.g., "brokerURL" → "setBrokerURL")</li>
      *   <li>Finds the appropriate setter method via reflection</li>
      *   <li>Converts the String value to the required parameter type</li>
      *   <li>Invokes the setter with the converted value</li>
      * </ol>
-     * </p>
      * <p>
      * Supported type conversions:
      * String, int/Integer, long/Long, double/Double, float/Float,

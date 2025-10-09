@@ -10,8 +10,17 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
+ * Internal implementation: Platform-agnostic JMS configuration model.
+ * <p>
  * A platform-agnostic, reusable model for shared JMS configuration.
  * This class has no dependency on any specific gateway or framework.
+ * </p>
+ * <p>
+ * <strong>Note:</strong> This is an internal implementation class and not part of the public API.
+ * Users should not instantiate this class directly.
+ * </p>
+ *
+ * @since 1.0.0
  */
 @Data
 public class ConfigurationAdapter {
@@ -31,8 +40,20 @@ public class ConfigurationAdapter {
     })
     private ConnectionSettings connection;
 
-    // A common interface for entities that provide a destination URL.
+    /**
+     * Internal interface for entities that provide a destination URL.
+     *
+     * @since 1.0.0
+     */
     private interface DestinationProvider {
+
+        /**
+         * Converts a destination configuration to a URL string.
+         *
+         * @param destinationConfig the destination configuration
+         * @return the destination URL string, or null if config is invalid
+         * @since 1.0.0
+         */
         default String getDestinationUrl(final DestinationConfig destinationConfig) {
             if (destinationConfig == null || destinationConfig.type() == null) {
                 return null;
@@ -45,40 +66,82 @@ public class ConfigurationAdapter {
         }
     }
 
+    /**
+     * Producer configuration settings.
+     *
+     * @since 1.0.0
+     */
     @Data
     public static class Producer implements DestinationProvider {
         private boolean enabled;
         private DestinationConfig destination;
 
+        /**
+         * Gets the destination URL for this producer.
+         *
+         * @return the destination URL string
+         * @since 1.0.0
+         */
         public String getDestinationUrl() {
             return getDestinationUrl(destination);
         }
     }
 
+    /**
+     * Consumer configuration settings.
+     *
+     * @since 1.0.0
+     */
     @Data
     public static class Consumer implements DestinationProvider {
         private boolean enabled;
         private DestinationConfig destination;
 
+        /**
+         * Gets the destination URL for this consumer.
+         *
+         * @return the destination URL string
+         * @since 1.0.0
+         */
         public String getDestinationUrl() {
             return getDestinationUrl(destination);
         }
     }
 
     /**
-     * Using a record for immutable, simple data structures.
+     * Destination configuration record.
+     *
+     * @param type the destination type (queue, topic, or jndi)
+     * @param destination the destination name or path
+     * @since 1.0.0
      */
     public record DestinationConfig(String type, String destination) {}
+
+    /**
+     * Key-value pair record for properties.
+     *
+     * @param key the property key
+     * @param value the property value
+     * @since 1.0.0
+     */
     public record KeyValuePair(String key, String value) {}
 
     /**
      * Base class for connection settings, containing shared properties.
+     *
+     * @since 1.0.0
      */
     @Data
     public abstract static class ConnectionSettings {
         private List<KeyValuePair> properties;
         private String jmsLibsPath;
 
+        /**
+         * Converts the properties list to a Map.
+         *
+         * @return map of property keys to values
+         * @since 1.0.0
+         */
         public Map<String, String> getPropertiesAsMap() {
             if (properties == null) {
                 return Map.of();
@@ -87,6 +150,11 @@ public class ConfigurationAdapter {
                     .collect(Collectors.toMap(KeyValuePair::key, KeyValuePair::value));
         }
 
+        /**
+         * Direct connection settings without JNDI.
+         *
+         * @since 1.0.0
+         */
         @Data
         @EqualsAndHashCode(callSuper = true)
         public static class Direct extends ConnectionSettings {
@@ -95,6 +163,11 @@ public class ConfigurationAdapter {
             private String password;
         }
 
+        /**
+         * JNDI-based connection settings.
+         *
+         * @since 1.0.0
+         */
         @Data
         @EqualsAndHashCode(callSuper = true)
         public static class Jndi extends ConnectionSettings {

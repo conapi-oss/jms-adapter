@@ -5,11 +5,30 @@ import at.conapi.plugins.common.endpoints.jms.adapter.AbstractJMSException;
 import at.conapi.plugins.common.endpoints.jms.adapter.AbstractMessage;
 import at.conapi.plugins.common.endpoints.jms.adapter.AbstractMessageListener;
 
+/**
+ * Internal implementation: Adapter wrapping vendor-specific JMS MessageConsumer.
+ * <p>
+ * This class wraps either a javax.jms.MessageConsumer or jakarta.jms.MessageConsumer
+ * and delegates all operations to the underlying implementation.
+ * </p>
+ * <p>
+ * <strong>Note:</strong> This is an internal implementation class and not part of the public API.
+ * Users should not instantiate this class directly.
+ * </p>
+ *
+ * @since 1.0.0
+ */
 public class ConsumerAdapter implements AbstractConsumer {
     private final Object consumer;
     private final boolean isJakarta;
     private AbstractMessageListener listener;
 
+    /**
+     * Constructs a ConsumerAdapter wrapping a vendor-specific message consumer.
+     *
+     * @param consumer the underlying javax or jakarta JMS message consumer
+     * @since 1.0.0
+     */
     public ConsumerAdapter(Object consumer) {
         this.consumer = consumer;
         this.isJakarta = consumer instanceof jakarta.jms.MessageConsumer;
