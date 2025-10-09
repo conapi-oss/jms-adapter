@@ -28,7 +28,7 @@
 
     <scm>
         <connection>scm:git:git://github.com/conapi-oss/jms-adapter.git</connection>
-        <developerConnection>scm:git:git@github.com:conapi-oss/jms-adapter.git</developerConnection>
+        <developerConnection>scm:git:https://github.com/conapi-oss/jms-adapter.git</developerConnection>
         <url>https://github.com/conapi-oss/jms-adapter/tree/main</url>
     </scm>
 
