@@ -1,4 +1,4 @@
-package at.conapi.plugins.common.endpoints.jms.adapter;
+package at.conapi.oss.jms.adapter;
 
 import java.net.URL;
 import java.net.URLClassLoader;

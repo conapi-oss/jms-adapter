@@ -1,4 +1,4 @@
-package at.conapi.plugins.common.endpoints.jms.adapter;
+package at.conapi.oss.jms.adapter;
 
 import java.util.Enumeration;
 import java.util.Map;

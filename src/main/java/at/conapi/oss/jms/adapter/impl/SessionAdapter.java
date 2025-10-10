@@ -1,6 +1,7 @@
-package at.conapi.plugins.common.endpoints.jms.adapter.impl;
+package at.conapi.oss.jms.adapter.impl;
 
-import at.conapi.plugins.common.endpoints.jms.adapter.*;
+import at.conapi.oss.jms.adapter.*;
+import at.conapi.oss.jms.adapter.*;
 import java.util.Map;
 
 /**
@@ -20,6 +21,7 @@ public class SessionAdapter implements AbstractSession
 {
     private final Object session;
     private final boolean isJakarta;
+    private final ClassLoader providerClassLoader;
 
     /** Destination type constant for queue destinations. */
     public static final String QUEUE = "queue";
@@ -32,11 +34,13 @@ public class SessionAdapter implements AbstractSession
      * Constructs a SessionAdapter wrapping a vendor-specific session.
      *
      * @param session the underlying javax or jakarta JMS session
+     * @param providerClassLoader the classloader that loaded the JMS provider classes
      * @since 1.0.0
      */
-    public SessionAdapter(Object session) {
+    public SessionAdapter(Object session, ClassLoader providerClassLoader) {
         this.session = session;
         this.isJakarta = session instanceof jakarta.jms.Session;
+        this.providerClassLoader = providerClassLoader;
     }
 
     @Override
@@ -58,7 +62,7 @@ public class SessionAdapter implements AbstractSession
             Object consumer = isJakarta
                     ? ((jakarta.jms.Session) session).createConsumer((jakarta.jms.Destination) destination.getDestination())
                         : ((javax.jms.Session) session).createConsumer((javax.jms.Destination) destination.getDestination());
-            return new ConsumerAdapter(consumer);
+            return new ConsumerAdapter(consumer, providerClassLoader);
         } catch (Exception e) {
             throw new AbstractJMSException("Failed to create session", e);
         }
@@ -71,7 +75,7 @@ public class SessionAdapter implements AbstractSession
             Object consumer = isJakarta
                     ? ((jakarta.jms.Session) session).createConsumer((jakarta.jms.Destination) destination.getDestination(), msgSelector)
                     : ((javax.jms.Session) session).createConsumer((javax.jms.Destination) destination.getDestination(), msgSelector);
-            return new ConsumerAdapter(consumer);
+            return new ConsumerAdapter(consumer, providerClassLoader);
         } catch (Exception e) {
             throw new AbstractJMSException("Failed to create session", e);
         }

@@ -1,4 +1,4 @@
-package at.conapi.plugins.common.endpoints.jms.adapter;
+package at.conapi.oss.jms.adapter;
 
 /**
  * Vendor-neutral interface for receiving JMS messages.

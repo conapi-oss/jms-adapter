@@ -1,8 +1,8 @@
-package at.conapi.plugins.common.endpoints.jms.adapter.impl;
+package at.conapi.oss.jms.adapter.impl;
 
-import at.conapi.plugins.common.endpoints.jms.adapter.AbstractDestination;
-import at.conapi.plugins.common.endpoints.jms.adapter.AbstractJMSException;
-import at.conapi.plugins.common.endpoints.jms.adapter.AbstractMessage;
+import at.conapi.oss.jms.adapter.AbstractDestination;
+import at.conapi.oss.jms.adapter.AbstractJMSException;
+import at.conapi.oss.jms.adapter.AbstractMessage;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Enumeration;

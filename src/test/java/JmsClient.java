@@ -1,6 +1,5 @@
-import at.conapi.plugins.common.endpoints.jms.adapter.*;
+import at.conapi.oss.jms.adapter.*;
 
-import javax.jms.Session;
 import javax.naming.Context;
 import java.net.MalformedURLException;
 import java.net.URL;

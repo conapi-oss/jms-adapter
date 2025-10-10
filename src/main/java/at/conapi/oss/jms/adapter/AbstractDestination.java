@@ -1,6 +1,4 @@
-package at.conapi.plugins.common.endpoints.jms.adapter;
-
-import at.conapi.plugins.common.endpoints.jms.adapter.impl.DestinationAdapter;
+package at.conapi.oss.jms.adapter;
 
 /**
  * Vendor-neutral interface for JMS destinations (Queues and Topics).

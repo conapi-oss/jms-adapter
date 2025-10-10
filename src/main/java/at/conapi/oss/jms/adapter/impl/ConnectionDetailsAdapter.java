@@ -1,4 +1,4 @@
-package at.conapi.plugins.common.endpoints.jms.adapter.impl;
+package at.conapi.oss.jms.adapter.impl;
 
 /**
  * Internal implementation: Connection details holder.

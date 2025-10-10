@@ -1,7 +1,7 @@
-package at.conapi.plugins.common.endpoints.jms.adapter;
+package at.conapi.oss.jms.adapter;
 
-import at.conapi.plugins.common.endpoints.jms.adapter.impl.ConnectionFactoryAdapter;
-import at.conapi.plugins.common.endpoints.jms.adapter.impl.DestinationAdapter;
+import at.conapi.oss.jms.adapter.impl.ConnectionFactoryAdapter;
+import at.conapi.oss.jms.adapter.impl.DestinationAdapter;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -91,8 +91,7 @@ public class JmsFactory {
      * <p>
      * This constructor allows loading JMS provider libraries from specific JAR files
      * at runtime while specifying the parent classloader for proper delegation.
-     * This is essential for ensuring JMS API classes are loaded from the correct classloader
-     * to prevent ClassCastException in plugin environments.
+     * Uses standard URLClassLoader by default, which is suitable for most JMS providers.
      * </p>
      *
      * @param providerJars array of URLs pointing to JMS provider JAR files, or empty array to use current classloader
@@ -100,6 +99,28 @@ public class JmsFactory {
      * @since 1.0.0
      */
     public JmsFactory(URL[] providerJars, ClassLoader parentClassLoader) {
+        this(providerJars, parentClassLoader, false);
+    }
+
+    /**
+     * Creates a JmsFactory with specific provider JAR files, a parent classloader, and classloader filtering option.
+     * <p>
+     * This constructor allows loading JMS provider libraries from specific JAR files at runtime
+     * while controlling whether to use a filtered classloader. The filtered classloader is only
+     * needed for JMS providers that bundle JMS API classes in their JAR (e.g., SonicMQ/Aurea Messenger).
+     * </p>
+     * <p>
+     * For most JMS providers (RabbitMQ, ActiveMQ, Artemis, etc.), use {@code useFilteredClassLoader = false}
+     * to avoid unnecessary classloader complexity and potential ClassNotFoundException issues.
+     * </p>
+     *
+     * @param providerJars array of URLs pointing to JMS provider JAR files, or empty array to use current classloader
+     * @param parentClassLoader the parent classloader (e.g., PluginClassLoader), or null to use default parent
+     * @param useFilteredClassLoader if true, uses FilteredClassLoader to delegate JMS API classes to parent;
+     *                               if false (recommended default), uses standard URLClassLoader
+     * @since 1.0.0
+     */
+    public JmsFactory(URL[] providerJars, ClassLoader parentClassLoader, boolean useFilteredClassLoader) {
         if (providerJars == null || providerJars.length == 0) {
             this.providerClassLoader = this.getClass().getClassLoader();
         }
@@ -109,8 +130,15 @@ public class JmsFactory {
                 ? parentClassLoader
                 : this.getClass().getClassLoader().getParent();
 
-            // Use FilteredClassLoader to ensure JMS API classes come from parent
-            this.providerClassLoader = new FilteredClassLoader(providerJars, parent);
+            if (useFilteredClassLoader) {
+                // Use FilteredClassLoader for providers that bundle JMS API classes (e.g., SonicMQ)
+                // This ensures JMS API classes come from parent to prevent ClassCastException
+                this.providerClassLoader = new FilteredClassLoader(providerJars, parent);
+            } else {
+                // Use standard URLClassLoader for well-behaved providers (RabbitMQ, ActiveMQ, etc.)
+                // This avoids classloader complexity and thread context classloader issues
+                this.providerClassLoader = new URLClassLoader(providerJars, parent);
+            }
         }
     }
 
@@ -118,7 +146,7 @@ public class JmsFactory {
      * Creates a JmsFactory by loading all JAR files from a directory path.
      * <p>
      * This constructor recursively walks the specified directory and loads all JAR files
-     * into an isolated classloader.
+     * into an isolated classloader. Uses standard URLClassLoader by default.
      * </p>
      *
      * @param providerJarPath path to directory containing JMS provider JAR files, or null/empty to use current classloader
@@ -126,14 +154,14 @@ public class JmsFactory {
      * @since 1.0.0
      */
     public JmsFactory(String providerJarPath) throws AbstractJMSException {
-        this(providerJarPath, null);
+        this(providerJarPath, null, false);
     }
 
     /**
      * Creates a JmsFactory by loading all JAR files from a directory path with a specified parent classloader.
      * <p>
      * This constructor recursively walks the specified directory and loads all JAR files
-     * into an isolated classloader with proper parent delegation for JMS API classes.
+     * into an isolated classloader. Uses standard URLClassLoader by default.
      * </p>
      *
      * @param providerJarPath path to directory containing JMS provider JAR files, or null/empty to use current classloader
@@ -142,6 +170,23 @@ public class JmsFactory {
      * @since 1.0.0
      */
     public JmsFactory(String providerJarPath, ClassLoader parentClassLoader) throws AbstractJMSException {
+        this(providerJarPath, parentClassLoader, false);
+    }
+
+    /**
+     * Creates a JmsFactory by loading all JAR files from a directory path with specified parent classloader and filtering option.
+     * <p>
+     * This constructor recursively walks the specified directory and loads all JAR files
+     * into an isolated classloader with control over classloader filtering.
+     * </p>
+     *
+     * @param providerJarPath path to directory containing JMS provider JAR files, or null/empty to use current classloader
+     * @param parentClassLoader the parent classloader (e.g., PluginClassLoader), or null to use default parent
+     * @param useFilteredClassLoader if true, uses FilteredClassLoader; if false, uses standard URLClassLoader
+     * @throws AbstractJMSException if the directory cannot be read or JAR files cannot be loaded
+     * @since 1.0.0
+     */
+    public JmsFactory(String providerJarPath, ClassLoader parentClassLoader, boolean useFilteredClassLoader) throws AbstractJMSException {
         try {
             if (providerJarPath == null || providerJarPath.isEmpty()) {
                 this.providerClassLoader = this.getClass().getClassLoader();
@@ -165,8 +210,13 @@ public class JmsFactory {
                     ? parentClassLoader
                     : this.getClass().getClassLoader().getParent();
 
-                // Use FilteredClassLoader to ensure JMS API classes come from parent
-                this.providerClassLoader = new FilteredClassLoader(urls.toArray(new URL[0]), parent);
+                if (useFilteredClassLoader) {
+                    // Use FilteredClassLoader for providers that bundle JMS API classes (e.g., SonicMQ)
+                    this.providerClassLoader = new FilteredClassLoader(urls.toArray(new URL[0]), parent);
+                } else {
+                    // Use standard URLClassLoader for well-behaved providers (RabbitMQ, ActiveMQ, etc.)
+                    this.providerClassLoader = new URLClassLoader(urls.toArray(new URL[0]), parent);
+                }
             }
         } catch (IOException e) {
             throw new AbstractJMSException("Failed to create JMS factory", e);
@@ -192,7 +242,7 @@ public class JmsFactory {
         try {
             // save the JNDI properties for later use
             this.jndiProperties = jndiProperties;
-            return new ConnectionFactoryAdapter(jndiLookup(jndiProperties, factoryName));
+            return new ConnectionFactoryAdapter(jndiLookup(jndiProperties, factoryName), providerClassLoader);
         } catch (Exception e) {
             throw new AbstractJMSException("Failed to lookup ConnectionFactory", e);
         }
@@ -275,7 +325,7 @@ public class JmsFactory {
             Object connectionFactory = cfClass.getDeclaredConstructor().newInstance();
             GenericPropertySetter.setProperties(connectionFactory, props);
 
-            return new ConnectionFactoryAdapter(connectionFactory);
+            return new ConnectionFactoryAdapter(connectionFactory, providerClassLoader);
 
         } catch (ClassNotFoundException e) {
             // First, print a clear error message to the log

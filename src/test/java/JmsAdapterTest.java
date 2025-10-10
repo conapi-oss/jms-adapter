@@ -1,4 +1,4 @@
-import at.conapi.plugins.common.endpoints.jms.adapter.AbstractJMSException;
+import at.conapi.oss.jms.adapter.AbstractJMSException;
 
 
 import java.util.HashMap;

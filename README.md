@@ -33,35 +33,46 @@ implementation 'at.conapi.oss:jms-adapter:1.0.0'
 ### Basic Example - Direct Connection
 
 ```java
-import at.conapi.plugins.common.endpoints.jms.adapter.*;
+import at.conapi.oss.jms.adapter.*;
 
 // Initialize factory with path to JMS provider JARs
 JmsFactory factory = new JmsFactory("/path/to/provider/jars");
 
-// Create connection factory
-Map<String, String> props = Map.of(
-    "brokerURL", "tcp://localhost:61616"
-);
-AbstractConnectionFactory cf = factory.createConnectionFactory(
-    "org.apache.activemq.ActiveMQConnectionFactory",
-    props
-);
+        // Create connection factory
+        Map<String, String> props = Map.of(
+                "brokerURL", "tcp://localhost:61616"
+        );
+        AbstractConnectionFactory cf = factory.createConnectionFactory(
+                "org.apache.activemq.ActiveMQConnectionFactory",
+                props
+        );
 
-// Create connection and session
-AbstractConnection connection = cf.createConnection("username", "password");
-connection.start();
-AbstractSession session = connection.createSession(false, 1);
+        // Create connection and session
+        AbstractConnection connection = cf.createConnection("username", "password");
+connection.
 
-// Create producer and send message
-AbstractDestination destination = session.createDestination("queue://myQueue");
-AbstractProducer producer = session.createProducer(destination);
-AbstractMessage message = session.createTextMessage("Hello World", null);
-producer.send(message);
+        start();
+
+        AbstractSession session = connection.createSession(false, 1);
+
+        // Create producer and send message
+        AbstractDestination destination = session.createDestination("queue://myQueue");
+        AbstractProducer producer = session.createProducer(destination);
+        AbstractMessage message = session.createTextMessage("Hello World", null);
+producer.
+
+        send(message);
 
 // Cleanup
-producer.close();
-session.close();
-connection.close();
+producer.
+
+        close();
+session.
+
+        close();
+connection.
+
+        close();
 ```
 
 ### JNDI Lookup Example
