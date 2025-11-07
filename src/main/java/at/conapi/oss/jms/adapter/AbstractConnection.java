@@ -28,6 +28,21 @@ public interface AbstractConnection extends AutoCloseable {
     AbstractSession createSession() throws AbstractJMSException;
 
     /**
+     * Creates a new JMS session.
+     * <p>
+     * Multiple sessions can be created from a single connection. Each session provides
+     * an independent transactional context.
+     * </p>
+     *
+     * @param transacted - indicates whether the session will use a local transaction, except in the cases described above when this value is ignored..
+     * @param acknowledgeMode - when transacted is false, indicates how messages received by the session will be acknowledged, except in the cases described above when this value is ignored.
+     * @return a new JMS session
+     * @throws AbstractJMSException if session creation fails
+     * @since 1.0.0
+     */
+    AbstractSession createSession(boolean transacted, int acknowledgeMode) throws AbstractJMSException;
+
+    /**
      * Starts (or restarts) message delivery for this connection.
      * <p>
      * A connection must be started before any consumers can receive messages.

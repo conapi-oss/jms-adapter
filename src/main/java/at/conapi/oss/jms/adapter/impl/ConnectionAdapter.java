@@ -40,11 +40,22 @@ public class ConnectionAdapter implements AbstractConnection
 
     @Override
     public AbstractSession createSession() throws AbstractJMSException {
+        return createSession(false, AbstractSession.AUTO_ACKNOWLEDGE);
+    }
+
+    /**
+     * @param transacted      - indicates whether the session will use a local transaction, except in the cases described above when this value is ignored..
+     * @param acknowledgeMode - when transacted is false, indicates how messages received by the session will be acknowledged, except in the cases described above when this value is ignored.
+     * @return
+     * @throws AbstractJMSException
+     */
+    @Override
+    public AbstractSession createSession(boolean transacted, int acknowledgeMode) throws AbstractJMSException {
         try {
             // for now use false, Session.AUTO_ACKNOWLEDGE
             Object session = isJakarta
-                    ? ((jakarta.jms.Connection) connection).createSession(false, jakarta.jms.Session.AUTO_ACKNOWLEDGE)
-                        : ((javax.jms.Connection) connection).createSession(false, javax.jms.Session.AUTO_ACKNOWLEDGE);
+                    ? ((jakarta.jms.Connection) connection).createSession(transacted, acknowledgeMode)
+                    : ((javax.jms.Connection) connection).createSession(transacted, acknowledgeMode);
             return new SessionAdapter(session, providerClassLoader);
         } catch (Exception e) {
             throw new AbstractJMSException("Failed to create session", e);

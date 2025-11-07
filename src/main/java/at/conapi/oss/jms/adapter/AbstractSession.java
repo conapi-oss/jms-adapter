@@ -16,6 +16,13 @@ import java.util.Map;
  */
 public interface AbstractSession extends AutoCloseable {
 
+    /* JMS acknowledgement modes*/
+    public static final int AUTO_ACKNOWLEDGE = 1;
+    public static final int CLIENT_ACKNOWLEDGE = 2;
+    public static final int DUPS_OK_ACKNOWLEDGE = 3;
+    public static final int SESSION_TRANSACTED = 0;
+
+
     /**
      * Creates a message producer for the specified destination.
      *
